@@ -1,4 +1,4 @@
-create or replace procedure MGUSER.PR_TRAITEGEN_JOB_GEAV (
+create or replace procedure        PR_TRAITEGEN_JOB_GEAV (
   -- EN  2022 08 03: T148434 Ajout du filtre "Situations" (présents, partis, bloqués, payés, ...)
   -- EN  2018 07 13: T72864 Ajout des filtres et des champs type de salarié (permanent, intermittent, ...) et nature de contrat (CDI, CDD, ...)
   -- FS  2016 08 17: T46987 : Responsable hierarchique de l'onglet affectaction dans la gestion avancée
@@ -230,6 +230,9 @@ is
    tGROU_SAIS table_of_varchar2_255;
    tREGR    table_of_varchar2_255;
    tUNIT    table_of_varchar2_255;
+   tMODE_BULL  table_of_varchar2_255;
+
+
 
    iSOCI    int;
    iSALA    int;
@@ -247,6 +250,7 @@ is
    iGROU_SAIS int;
    iREGR    int;
    iUNIT    int;
+   iMODE_BULL int;
    oSociOrig societe%rowtype;
 
    vDEPA_NAIS           varchar2(255);
@@ -278,6 +282,7 @@ is
    fDATE_REFE_03        float;
    fDATE_REFE_04        float;
    fDATE_REFE_05        float;
+   
 
    oList    liste_gestion_avancee%rowtype;
    oList_2  liste_gestion_avancee_2%rowtype;
@@ -296,6 +301,7 @@ is
 
    dPERI_COUR date;
    dPREM_PERI date;
+   dDATE_ANCI_CADR_FORF  date;
 
    iLOOP_ANAL int         default 0;
 
@@ -2427,6 +2433,8 @@ begin
    tREGR:=fct_para_edit_liste(vID_PARA,'REGROUPEMENT');
    tUNIT:=fct_para_edit_liste(vID_PARA,'CATEGORIE');
    tSITU:=fct_para_edit_liste(vID_PARA,'SITUATION');
+   tMODE_BULL:=fct_para_edit_liste(vID_PARA,'MODBULL');
+
 
    iSOCI:=tSOCI.count;
    iDIVI:=tDIVI.count;
@@ -2445,6 +2453,7 @@ begin
    iREGR:=tREGR.count;
    iUNIT:=tUNIT.count;
    iSITU:=tSITU.count;
+   iMODE_BULL:=tMODE_BULL.count;
 
    -- positionnement des indicateurs en fonction des situations sélectionnées (T148434)
    for iSIT in 1..iSITU loop
@@ -3200,6 +3209,7 @@ to_char(fct_to_date(fct_hs(s.date_proc_visi_medi                      ,hs.date_p
                   --and equi.id_equi = (select max(id_equi) from equipe ee where ee.id_soci = s.id_soci and ee.libe = s.equi)
                   and unit.id_soci (+)= s.id_soci
                   and unit.libe (+)= fct_hs(s.unit, hs.unit, dPERI_COUR, hs.peri)  -- T139464
+
                   and not exists( select 1 from sala$hist sh where sh.id_sala = s.id_sala and sh.hors_paie_type ='INTERM' and sh.acti$h ='1')
                   and (
                         ( vSITU_REGU_N = 'O' and nvl(h.reac_regu, 'N') = 'N')
@@ -3237,6 +3247,7 @@ to_char(fct_to_date(fct_hs(s.date_proc_visi_medi                      ,hs.date_p
                   and (iGROU_SAIS = 0 or nvl(trim(h.sais), '@sans@')           in (select * from table(cast(tGROU_SAIS as table_of_varchar2_255))))
                   and (iREGR = 0 or nvl(trim(h.regr), '@sans@')                in (select * from table(cast(tREGR as table_of_varchar2_255))))
                   and (iUNIT = 0 or nvl(trim(h.unit), '@sans@')                in (select * from table(cast(tUNIT as table_of_varchar2_255))))
+                  and (iMODE_BULL = 0 or s.id_modbull                         in (select * from table(cast(tMODE_BULL as table_of_varchar2_255))))
                   and (iCAIS = 0 or (iCAIS=1 and 'REEL' in (select * from table(cast(tCAIS as table_of_varchar2_255))) and s.id_simu is null) or (iCAIS=1 and 'SIMU' in (select * from table(cast(tCAIS as table_of_varchar2_255))) and s.id_simu is not null))
            )loop
 
@@ -3272,6 +3283,14 @@ to_char(fct_to_date(fct_hs(s.date_proc_visi_medi                      ,hs.date_p
              when NO_DATA_FOUND then
                vNOMB_TR_CALC_PERI := '0';
              end;
+
+            begin
+               SELECT DISTINCT TO_CHAR(fct_format(vale, 'DD/MM/YYYY'),'DD/MM/YYYY') into dDATE_ANCI_CADR_FORF FROM hist_cons_sala WHERE id_sala=data.id_sala AND code_cons = 'DATEANCI_CADR_FORF_J' and peri=peri.peri_paie;
+             exception
+             when NO_DATA_FOUND then
+               dDATE_ANCI_CADR_FORF := null;
+             end;
+
 
              vNUME_COMP_BRUT := '';
              vLIBE_COMP_BRUT := '';
@@ -3628,6 +3647,7 @@ to_char(fct_to_date(fct_hs(s.date_proc_visi_medi                      ,hs.date_p
            --    fCOEFFIC,
            --    fINDICE,
            --    fDATEANCI_PROF,
+           --    fDATEANCI_CADR_FORF,
            --    fDATE_SIGN_CONV_STAG,
            --    fDATE_REFE_01,
            --    fDATE_REFE_02,
@@ -3694,6 +3714,7 @@ to_char(fct_to_date(fct_hs(s.date_proc_visi_medi                      ,hs.date_p
             end if;
 
             fDATEANCI_PROF         := fct_hc_sala_nume(data.id_sala, to_char (peri.peri_paie, 'DD/MM/YYYY'), 'DATEANCI_PROF'           );
+            fDATEANCI_CADR_FORF    := fct_hc_sala_nume(data.id_sala, to_char (peri.peri_paie, 'DD/MM/YYYY'), 'DATE_ANCI_CADR_FORF'           );
             fDATE_SIGN_CONV_STAG   := fct_hc_sala_nume(data.id_sala, to_char (peri.peri_paie, 'DD/MM/YYYY'), 'DATE_SIGN_CONV_STAG'     );
             fDATE_REFE_01          := fct_hc_sala_nume(data.id_sala, to_char (peri.peri_paie, 'DD/MM/YYYY'), 'DATE_REFE_01'            );
             fDATE_REFE_02          := fct_hc_sala_nume(data.id_sala, to_char (peri.peri_paie, 'DD/MM/YYYY'), 'DATE_REFE_02'            );
@@ -3795,7 +3816,6 @@ to_char(fct_to_date(fct_hs(s.date_proc_visi_medi                      ,hs.date_p
              else
                 oGeav.date_anci_prof:=null;
              end if;
-
 
              if fDATEANCI_CADR_FORF between 19000000 and 99999999 then
                 oGeav.date_anci_cadr_forf:=to_char(to_date(fDATEANCI_CADR_FORF,'YYYYMMDD'),'DD/MM/YYYY');
@@ -5212,10 +5232,9 @@ to_char(fct_to_date(fct_hs(s.date_proc_visi_medi                      ,hs.date_p
                    mont_anci_pa              ,
                    anci_cadr                 ,
                    tota_heur_trav            ,
-                  DPAE_ENVO     ,
-                  DISP_POLI_PUBL_CONV       ,
-                  DATE_ANCI_CADR_FORF    
-
+                   DPAE_ENVO                 ,
+                   DISP_POLI_PUBL_CONV       ,
+                   DATE_ANCI_CADR_FORF    
                 )values(
                    iID_SOCI            ,
                    iID_LOGI            ,
@@ -6044,7 +6063,7 @@ to_char(fct_to_date(fct_hs(s.date_proc_visi_medi                      ,hs.date_p
                    data.tota_heur_trav            ,
                    oGeav.DPAE_ENVO                ,
                    oGeav.DISP_POLI_PUBL_CONV      ,
-                   oGeav.DATE_ANCI_CADR_FORF 
+                   dDATE_ANCI_CADR_FORF 
                 );
                 commit;
              end loop;-- boucle analytique
@@ -7625,14 +7644,13 @@ to_char(fct_to_date(fct_hs(s.date_proc_visi_medi                      ,hs.date_p
         count(distinct e.tota_heur_trav)                   as CNT_TOTA_HEUR_TRAV     ,
 
         max(e.DPAE_ENVO)                              as DPAE_ENVO                   ,
-        count(distinct e.DPAE_ENVO)                   as CNT_DPAE_ENVO               ,
+        count(distinct e.DPAE_ENVO)                   as CNT_DPAE_ENVO                   ,
         
         max(e.DISP_POLI_PUBL_CONV)                    as DISP_POLI_PUBL_CONV         ,
-        count(distinct e.DISP_POLI_PUBL_CONV)         as CNT_DISP_POLI_PUBL_CONV     ,
+        count(distinct e.DISP_POLI_PUBL_CONV)         as CNT_DISP_POLI_PUBL_CONV         ,
                 
         max(e.DATE_ANCI_CADR_FORF)                    as DATE_ANCI_CADR_FORF         ,
         count(distinct e.DATE_ANCI_CADR_FORF)         as CNT_DATE_ANCI_CADR_FORF         
-
 
       from pers_edit_gestion_avancee e,liste_gestion_avancee l,liste_gestion_avancee_2 l2
       where
@@ -8413,14 +8431,12 @@ to_char(fct_to_date(fct_hs(s.date_proc_visi_medi                      ,hs.date_p
        if grp.CNT_MONT_ANCI_PA             < 2 then oGeav.mont_anci_pa              :=grp.mont_anci_pa              ; else oGeav.mont_anci_pa              :=''                                               ;end if;
        if grp.CNT_ANCI_CADR                < 2 then oGeav.anci_cadr                 :=grp.anci_cadr                 ; else oGeav.anci_cadr                 :=''                                               ;end if;
        if grp.CNT_TOTA_HEUR_TRAV           < 2 then oGeav.tota_heur_trav            :=grp.tota_heur_trav            ; else oGeav.tota_heur_trav            :=''                                               ;end if;
-
-            
+       
       if grp.cnt_DPAE_ENVO                < 2 then oGeav.DPAE_ENVO                  :=grp.DPAE_ENVO                        ; else oGeav.DPAE_ENVO                        :=''                                 ;end if;       
       if grp.cnt_DISP_POLI_PUBL_CONV      < 2 then oGeav.DISP_POLI_PUBL_CONV        :=grp.DISP_POLI_PUBL_CONV              ; else oGeav.DISP_POLI_PUBL_CONV              :=''                                 ;end if;
       if grp.cnt_DATE_ANCI_CADR_FORF      < 2 then oGeav.DATE_ANCI_CADR_FORF        :=grp.DATE_ANCI_CADR_FORF              ; else oGeav.DATE_ANCI_CADR_FORF              :='Plusieurs (' ||grp.cnt_DATE_ANCI_CADR_FORF       ||')';end if;
    
    
-
 	     if grp.cnt_adre < 2 then
 	     	oGeav.dern_adre :=grp.adre;
 	     else
@@ -13222,4 +13238,3 @@ exception
       );
 
 end pr_traitegen_job_geav;
-/
