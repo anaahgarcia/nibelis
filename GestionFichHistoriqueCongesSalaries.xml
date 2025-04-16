@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<PARAM_GESTION>
+<BOOKMARK
+url="Gestion?CONVERSATION=GestionFichHistoriqueCongesSalaries&#x26;ACTION=MODI&#x26;MAJ=N"
+/>
+<TEMPLATE_CREE>GestionFichHistoriqueCongesSalaries</TEMPLATE_CREE>
+<TEMPLATE_MODI1>GestionFichHistoriqueCongesSalaries</TEMPLATE_MODI1>
+<TEMPLATE_MODI>GestionFichHistoriqueCongesSalaries</TEMPLATE_MODI>
+<TEMPLATE_ONGLET />
+<CHAMPS_ID>ID_SOCI</CHAMPS_ID>
+<TABLE />
+
+<!--PRE_PROCEDURE>
+  pr_edit_impo_salaries_sais_pre ('{MP:SESS_ID_SOCI}','{MP:SESS_ID_LOGI}',?)
+</PRE_PROCEDURE-->
+
+<SQL_FICHE_DEFAUT>
+  select
+	  'MODI'                                            as ACTION       ,
+	  '{MP:SESS_ID_SOCI}'                               as ID_SOCI      ,
+	  '{SELE_ID_LIST}'                                  as SELE_ID_LIST ,
+	  'PRES'                                            as STAT_SALA    ,
+	  'Import générique - Congés des salariés'          as TITRE        ,
+		pack_para_syst.get({MP:SESS_ID_SOCI},'BOUT_PARA') as PASY_BOUT
+	from dual
+</SQL_FICHE_DEFAUT>
+
+<SQL_VALEURS_DEFAUT>
+	select
+	  'MODI'                                            as ACTION       ,
+	  '{MP:SESS_ID_SOCI}'                               as ID_SOCI      ,
+	  '{SELE_ID_LIST}'                                  as SELE_ID_LIST ,
+	  'PRES'                                            as STAT_SALA    ,
+	  'Import générique - Congés des salariés'          as TITRE        ,
+		pack_para_syst.get({MP:SESS_ID_SOCI},'BOUT_PARA') as PASY_BOUT
+	from dual
+</SQL_VALEURS_DEFAUT>
+
+<SQL_MAJ />
+
+<SQL_LECTURE>
+  select
+	  'MODI'                                            as ACTION       ,
+	  '{MP:SESS_ID_SOCI}'                               as ID_SOCI      ,
+	  '{SELE_ID_LIST}'                                  as SELE_ID_LIST ,
+	  'PRES'                                            as STAT_SALA    ,
+	  'Import générique - Congés des salariés'          as TITRE        ,
+	  fich                                              as FICH         ,
+		pack_para_syst.get({MP:SESS_ID_SOCI},'BOUT_PARA') as BOUT
+	from import_generique_type
+  where id_type = 8
+</SQL_LECTURE>
+</PARAM_GESTION>

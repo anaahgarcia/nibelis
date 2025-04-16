@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<html>
+  <head>
+    <MP:SSI id="HEAD_HTML_V2"/>
+        <script type="text/javascript">
+    var oF = null;
+    Liste.setModuleGestionnaire();
+    Liste.setTemplate('ListeImportHistoriqueCongesSalaries');
+    
+      function window_onload() {
+        oF=new Formulaire(document.getElementById('FORM_PRIN'));
+        oF.setValue('SELE_ID_LIST','{MP:SELE_ID_LIST}');
+        oF.setValue('SOCIETE','{MP:ID_SOCI}');
+        Liste.setIdList(oF.getValue('{MP:SELE_ID_LIST}'));
+        documentInit("{MP:BLO_PAGE}","{MP:BLO_ONGL}");
+
+      }
+    </script>
+
+  </head>
+  <body onload="window_onload()">
+ <header class="container-fluid">
+  <MP:SSI id="HEAD_MENU_DYNAMIQUE" params="MP:FILTER_FAMI=PERS;MP:FILTER_ACTIVE=" />
+   <div id="profil-menu" class="row js-responsive-menu">
+      <!-- Menu Latéral -->
+      <nav class="select-profil js-responsive-menu__content">
+        <div>      
+          <form action="Gestion"   method="GET" id="FORM_NAVI" data-list="select-user-menu">  
+            <input type="hidden" name="CONVERSATION"      value="GestionFichHistoriqueCongesSalaries"   />
+            <input type="hidden" name="MAJ"               value="N"                />
+            <input type="hidden" name="ACTION"            value="MODI"             />
+            <input type="hidden" name="ID"                value=""                 />
+            <div class="mgtitre">
+              Import des données historique congés salariés
+              <div class="js-popover" data-trigger-event="hover">
+                <div class="content-popover">
+                   Import des données historique congés salariés
+                </div>
+              </div>
+            </div>      
+          </form>   
+        </div>
+      </nav>
+      
+    <nav class="profil-actions save-cancel js-responsive-menu__content onRight">
+      <ul class="global-actions noBorder">
+        <li><a href="ListeEtats?TEMPLATE=ListeImportHistoriqueCongesSalariesLot"><i class="fa fa-history"/> Historique des imports</a></li>
+        <!--li>
+          <a href="/aide-pdf/guide_utilisateur_import_donnees_signaletiques_salaries.pdf" title="Guide technique" target="_blank">
+            <i class="fa fa-file-text-o"></i>
+          </a>
+        </li-->
+        <li class="informations js-popover" data-trigger-event="focus" data-template="info" data-prevent-link="true">
+          <a href=""><i class="icon icon-info"></i></a>
+          <div class="content-popover">
+               Cet import de données historique congés salariés vous permez de modifier vos salariés. Étapes à suivre : 
+               <ul>
+                <li>Veuillez télécharger le fichier Excel en cliquant sur le bouton <i class="fa fa-file-excel-o" /></li>
+                <li>Saisissez les données historique congés de vos salariés</li>
+                <li>Enregistrez le fichier au format CSV (séparateur point-virgule)</li>
+                <li>Importez le fichier CSV en cliquant sur le bouton <i class="fa fa-upload" /></li>
+               </ul>
+          </div>
+        </li>  
+      </ul>
+    </nav>
+    
+    <nav class="profil-actions js-responsive-menu__content onRight sub-element" data-responsive-menu-order="1">
+      <ul class="global-actions noBorder">
+      </ul>
+    </nav>
+        <!-- Responsive -->
+    <div class="onRight responsive-menu__trigger js-responsive-menu__trigger">
+     <div class="navbar-header">
+      <button class="navbar-toggle navbar-index navbar-index-listes" type="button">
+       <span class="sr-only">Toggle navigation</span>
+       <span class="icon-bar"></span>
+       <span class="icon-bar"></span>
+       <span class="icon-bar"></span>
+      </button>
+     </div>
+    </div>
+  <!-- Responsive end -->
+   </div>
+ </header>
+ <section class="container-fluid" id="main-container">
+  <div class="row"> 
+    <!-- Liste des liens pour la navigation -->
+    <!--section class="col-xs-3 col-lg-2 isPin" id="select-list-menu" data-action="fixed-menu-content" data-icon="folder-open">
+      <div class="close" data-action="close-menu">
+        <i class="icon icon-small icon-close"></i>
+      </div>
+
+      <h1>Autres</h1>
+
+      <div class="form-group">
+        <input type="text" class="js-recherche-list" placeholder="Rechercher une page ..." data-recherche-list="list_01" />
+      </div>
+
+      <nav class="scrollmenu-content">
+        <div>
+          <ul class="nochip" id="">
+            <li class="js-recherche-list__content__list_01 "><a target="_blank" href="ListeEtats?TEMPLATE=ListeImportHistoriqueCongesSalariesLot">Historique des imports de données</a></li>
+            <li class="js-recherche-list__content__list_01 "><a target="_blank" href="Gestion?CONVERSATION=GestionSociete&#x26;ACTION=MODI&#x26;MAJ=N">Fiche société</a></li>
+            <li class="js-recherche-list__content__list_01 "><a target="_blank" href="ListeEtats?TEMPLATE=ListeEtablissement">Liste des établissements</a></li>
+            <li class="js-recherche-list__content__list_01 "><a target="_blank" href="ListeEtats?TEMPLATE=ListeBulletinModele">Liste des bulletins modèles</a></li>
+            <li class="js-recherche-list__content__list_01 "><a target="_blank" href="ListeEtats?TEMPLATE=ListeDesEmplois">Liste des emplois</a></li>
+            <li class="js-recherche-list__content__list_01 "><a target="_blank" href="ListeEtats?TEMPLATE=ListeCategoriesProfessionnelles">Liste des catégories professionnelles</a></li>
+          </ul>
+        </div>
+      </nav>
+    </section-->
+        <section class="col-xs-12 col-lg-12 notPin scrollable main-form-content" id="main-content">
+          <form action="ListeEtats" method="GET" class="form-horizontal" id="FORM_PRIN">
+             <input type="hidden" name="TEMPLATE" value="ListeImportHistoriqueCongesSalariesSaisie"/>
+             <input type="hidden" name="XLS"      value="POI"/>
+             <input type="hidden" name="UP"       value=""/>
+
+            <!-- Barre pour les messages d'erreurs -->
+            <aside>
+              <div>
+                <div class="erreur"><MP:ERR_ANNE_BUDG/></div>
+                <div class="erreur"><MP:ERRE_PAGE/></div>
+                <div class="ok"><MP:NO_ERRE_PAGE/></div>
+                <MP:ALERT_PAGE/>
+              </div>
+            </aside>
+            
+            <article class="minify js-minify container-fluid {MP:BLO__PARA_01__CSS}" id="BLO__PARA_01">
+              <h2 class="minify-action js-minify-action"><i class="icon icon-small icon-caret-up"></i> {MP:BLO__PARA_01__LIB}</h2>
+              <div class="row">
+                <div class="col-xs-12">
+                  <div class="form-group">
+                      <label class="mglabel">Modèle de fichier</label>
+                      <div>
+                        <div class="col-xs-9 no-padding">
+                          <select name="SELE_ID_LIST" class="js-form-control" onchange="Liste.setIdList(this.value)">
+                          <MP:BLOC id="LISTE_ETAT_COLONNES_LIST_EXPLOITABLES" params="MP:FILTER_ETAT=ListeImportHistoriqueCongesSalaries">
+                            <option value="{MP:SELE_ID}"><MP:SELE_LIBE /><MP:SELE_PROP /><MP:SELE_DEFA /> </option>
+                          </MP:BLOC>
+                         </select>
+                        </div>
+                        <div class="col-xs-3 no-padding">
+                          <a class="quicklink pull-right" href="javascript:Liste.modifierModele()" ><i class="mgicon-cog"></i> Paramétrer le modèle</a>
+                        </div>
+                      </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="mglabel">Société</label>
+                    <div>
+                      <div class="col-xs-12 no-padding">
+                        <select name="SOCIETE" class="form-control">
+                          <option value="">Toutes les sociétés</option>
+                          <MP:BLOC id="GROUPE_SOCIETES">
+                          <option value="{MP:SELE_ID}">{MP:SELE_LIBE}</option>
+                          </MP:BLOC>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!--div class="form-group">
+                    <label class="mglabel">Données déjà saisies</label>
+                    <div>
+                      <select name="TYPE_EXPORT" class="js-form-control">
+                        <option value="MASQ_VIER">Exporter un modèle de fichier vierge</option>
+                        <option value="MASQ_REMP">Exporter un modèle de fichier déjà rempli</option>
+                      </select>
+                    </div>
+                  </div-->
+                  
+                  <div class="form-group">
+                    <label class="mglabel"></label>
+                    <div class="text-center">
+                      <a href="javascript:oF.submit()" class="quicklink"><i class="fa fa-file-excel-o" /> Récupérer le fichier</a>
+                    </div>
+                  </div>
+                  
+                </div>
+              </div>
+            </article>
+            
+            <article class="minify js-minify container-fluid {MP:BLO__PARA_02__CSS}" id="BLO__PARA_02">
+              <h2 class="minify-action js-minify-action"><i class="icon icon-small icon-caret-up"></i> {MP:BLO__PARA_02__LIB}</h2>
+              <div class="row">
+                <div class="col-xs-12">
+                  <div class="form-group">
+                    <label class="mglabel">Importer le fichier</label>
+                    <div>
+                      <div class="col-xs-9 no-padding">
+                        <div class="mginfo">Cliquez sur le lien pour lancer la procédure d'import.</div>
+                      </div>
+                      <div class="col-xs-3 no-padding">
+                        <a href="Gestion?CONVERSATION=ImportGenerique&#x26;MAJ=O&#x26;ACTION=CREE&#x26;MP:ACTION=CREE&#x26;MP:ID_TYPE=8" class="quicklink pull-right" title="Import des données" ><i class="fa fa-upload" /> Import des données</a>
+                      </div>
+                    </div>
+                  </div>
+                                   
+                  <!--div class="form-group">
+                    <label class="mglabel"></label>
+                    <div>
+                      <div>
+                        <div class="mginfo">ATTENTION : une valeur vide dans le fichier d'import effacera le champ de la fiche salarié. Par contre, tout champ absent du fichier n'aura aucun effet.</div>
+                      </div>
+                    </div>
+                  </div-->
+                  
+                </div>
+              </div>
+            </article>
+
+        </form>
+      </section>
+    </div>
+  </section>
+  <MP:SSI id="FOOT_HTML_V2" params="MP:FILTER_PAGE=GEST"/>
+  </body>
+</html>
